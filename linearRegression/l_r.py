@@ -18,27 +18,27 @@ def data_iter(batch_size, features, labels):
     random.shuffle(indices)
     for i in range(0, num_examples, batch_size):
         batch_indices = torch.tensor(
-            indices[i:min(i+batch_size, num_examples)]  # 这个可以学习一下
+            indices[i:min(i + batch_size, num_examples)]  # 这个可以学习一下
         )
         yield features[batch_indices], labels[batch_indices]
         # yield 生成器
 
 
-def linreg(X,w,b):
+def linreg(X, w, b):
     """线性模型"""
     return torch.matmul(X, w) + b
 
 
-def squared_loss(y_hat,y):
+def squared_loss(y_hat, y):
     """均方损失"""
-    return (y_hat -y.reshape(y_hat.shape))**2/2
+    return (y_hat - y.reshape(y_hat.shape)) ** 2 / 2
 
 
 def sgd(params, lr, batch_size):
     """小批量随机梯度下降"""
     with torch.no_grad():
-        for param in params: #从W 到 b
-            param -= lr*param.grad/batch_size #.grad表示梯度
+        for param in params:  # 从W 到 b
+            param -= lr * param.grad / batch_size  # .grad表示梯度
             param.grad.zero_()
             # 手动将梯度设置成0 ，在下一次计算梯度的时候就不会和上一次相关了
     """
@@ -56,7 +56,6 @@ num_epochs = 3
 net = linreg
 loss = squared_loss
 
-
 if __name__ == '__main__':
     true_w = torch.tensor([2, -3.4])
     true_b = 4.2
@@ -64,11 +63,11 @@ if __name__ == '__main__':
     print("features:", features[0], '\nlabel:', labels[0])
 
     d2l.set_figsize()
-    d2l.plt.scatter(features[:,1].detach().numpy(),
+    d2l.plt.scatter(features[:, 1].detach().numpy(),
                     labels.detach().numpy(), 1)
     d2l.plt.show()
 
-    for X, y in data_iter(batch_size, features,labels):
+    for X, y in data_iter(batch_size, features, labels):
         print(X, "\n", y)
         break
 
@@ -83,15 +82,15 @@ if __name__ == '__main__':
     """
 
     for epoch in range(num_epochs):
-        for X, y in data_iter(batch_size, features,labels):
+        for X, y in data_iter(batch_size, features, labels):
             # net->linreg
-            l = loss(net(X, w, b), y) # 计算loss
-            l.sum().backward() # 反向传播 -> 这个过程会自动求导，求导结果保存在grad中，再到sgd中进行更新
-            sgd([w, b], lr, batch_size) # sgd对w,b进行更新
+            l = loss(net(X, w, b), y)  # 计算loss
+            l.sum().backward()  # 反向传播 -> 这个过程会自动求导，求导结果保存在grad中，再到sgd中进行更新
+            sgd([w, b], lr, batch_size)  # sgd对w,b进行更新
             # 更新的w,b是存在什么地方进行传递的？
         with torch.no_grad():
             train_l = loss(net(features, w, b), labels)
-            print(f"epoch {epoch+1},loss{float(train_l.mean()):f}")
+            print(f"epoch {epoch + 1},loss{float(train_l.mean()):f}")
             print(f'w的估计误差:{true_w - w.reshape(true_w.shape)}')
             print(f'b的估计误差:{true_b - b}')
 
